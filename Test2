@@ -1,0 +1,285 @@
+//Ты можешь добавлять свои импорты
+import java.util.*;
+
+
+public class Test2 {
+    public static void main(String args[]){
+        // получение входящей строки
+        Scanner console = new Scanner(System.in);
+        System.out.println("Input:");
+        String EnterStr = console.nextLine();
+        System.out.println("Output:");
+        Main a1 = new Main();
+        System.out.println(a1.calc(EnterStr));
+    }
+}
+
+//решение должно содержать данный класс
+class Main {
+    String result;
+    Operations oper;
+    //Решение должно содержать данный метод
+    public String calc(String input)  {
+        try{
+            // Проверка входящей строки
+            if(input.isEmpty() == true){
+                throw new Exception("Исключение");
+            }
+            result = input;
+
+            // парсим строку
+            int length = input.length();
+            int Counter1 = 0; //счетчик спец символов
+            int SymbolPlace = 0;
+
+            for (int i = 0; i < length; ++i) {
+                switch(input.charAt(i)){
+                    case '*':
+                        oper = Operations.MULTIPLY;
+                        Counter1++;
+                        SymbolPlace = i;
+                        break;
+                    case '/':
+                        oper = Operations.DIVIDE;
+                        Counter1++;
+                        SymbolPlace = i;
+                        break;
+                    case '+':
+                        oper = Operations.PLUS;
+                        Counter1++;
+                        SymbolPlace = i;
+                        break;
+                    case '-':
+                        oper = Operations.MINUS;
+                        Counter1++;
+                        SymbolPlace = i;
+                        break;
+
+                }
+                // операций слишком много уходим в исключение
+                if(Counter1>1) {
+                    throw new Exception("Исключение");
+                }
+            }
+            if(Counter1==0) {
+                throw new Exception("Исключение");
+            }
+            // у нас есть есть один символ операции +,-,/,*
+            // SymbolPlace - номер в строке inputString этого символа
+            //System.out.println("Середина" + SymbolPlace);
+            // Получим первое и второе число
+
+            Number num1 = new Number(input.substring(0,SymbolPlace));
+            //System.out.println("num1.value=" + num1.value);
+            // проверим что число num1 были в нужном диапазоне
+            if(num1.value<=0||num1.value>10) {
+                throw new Exception("Исключение");
+            }
+            Number num2 = new Number(input.substring(SymbolPlace+1));
+
+            // проверим что число num1 были в нужном диапазоне
+            if(num2.value<=0||num2.value>10) {
+                throw new Exception("Исключение");
+            }
+
+            // если варианты чисел не подходят то ошибка
+            if(num1.option != num2.option) {
+                throw new Exception("Исключение");
+            }
+
+            Result num3 = new Result(num1,num2,oper);
+
+            if(num3.option == Options.Roman && num3.value<1){
+                throw new Exception("Исключение");
+            }
+            // вывод результата
+            return num3.GetString();
+        }
+        catch(Exception ex){
+
+            //System.out.println(ex.getMessage());
+            return "Исключение";
+        }
+    }
+
+}
+
+//Ты так же можешь добавлять свои классы (этот класс, если не потребуется, можно удалить)
+class Number {
+    Options option; // 0 - арабские, 1 - римские
+    int value;
+
+    Number(String strNumber) {
+        try {
+            //System.out.println("strNumber=" + strNumber);
+            if (strNumber.trim().isEmpty() == true) {
+                return;
+            }
+            this.value = Integer.parseInt(strNumber.trim());
+            // если преобразование осуществилось значит арабские
+            //System.out.println("Арабские");
+            this.option = Options.Arabic;
+        }
+        catch(NumberFormatException ex){
+            // ошибка пребразование значит ,возможно, Римские
+            //System.out.println("Римские");
+            switch(strNumber.trim()){
+                case "I":
+                    this.value = 1;
+                    break;
+                case "II":
+                    this.value = 2;
+                    break;
+                case "III":
+                    this.value = 3;
+                    break;
+                case "IV":
+                    this.value = 4;
+                    break;
+                case "V":
+                    this.value = 5;
+                    break;
+                case "VI":
+                    this.value = 6;
+                    break;
+                case "VII":
+                    this.value = 7;
+                    break;
+                case "VIII":
+                    this.value = 8;
+                    break;
+                case "IX":
+                    this.value = 9;
+                    break;
+                case "X":
+                    this.value = 10;
+                    break;
+                default:
+                    this.value = 0;
+            }
+            this.option = Options.Roman;
+        }
+    }
+}
+
+class Result {
+    Options option;
+    int value;
+    Result(Number num1,Number num2, Operations oper) {
+        option = num1.option;
+        if(oper == Operations.PLUS) {
+            this.value = num1.value+num2.value;
+        }
+        if(oper == Operations.MINUS) {
+            this.value = num1.value-num2.value;
+        }
+        if(oper == Operations.MULTIPLY) {
+            this.value = num1.value*num2.value;
+        }
+        if(oper == Operations.DIVIDE) {
+            this.value = num1.value/num2.value;
+        }
+    }
+    String GetString(){
+        //System.out.println("результат"+this.value);
+        // вывод результата
+        if(this.option == Options.Arabic){
+            return ""+this.value;
+        }
+        if(this.option == Options.Roman){
+            return GetRoman(this.value);
+        }
+        return null;
+    }
+    // получим римскую число от 1 до 100
+    String GetRoman(int num){
+        if(num>100||num<1){
+            return "";
+        }
+        if(num == 100){
+            return "C";
+        }
+        int remain1 = num%10;
+        int remain2 = num/10%100;
+        String digit1 = "";
+        String digit2 = "";
+        if(remain1>0){
+            switch(remain1){
+                case 1:
+                    digit1 = "I";
+                    break;
+                case 2:
+                    digit1 = "II";
+                    break;
+                case 3:
+                    digit1 = "III";
+                    break;
+                case 4:
+                    digit1 = "IV";
+                    break;
+                case 5:
+                    digit1 = "V";
+                    break;
+                case 6:
+                    digit1 = "VI";
+                    break;
+                case 7:
+                    digit1 = "VII";
+                    break;
+                case 8:
+                    digit1 = "VIII";
+                    break;
+                case 9:
+                    digit1 = "IX";
+                default:
+                    digit1 = "ERROR";
+            }
+        }
+        if(remain2>0){
+            switch(remain2){
+                case 1:
+                    digit2 = "X";
+                    break;
+                case 2:
+                    digit2 = "XX";
+                    break;
+                case 3:
+                    digit2 = "XXX";
+                    break;
+                case 4:
+                    digit2 = "XL";
+                    break;
+                case 5:
+                    digit2 = "L";
+                    break;
+                case 6:
+                    digit2 = "LX";
+                    break;
+                case 7:
+                    digit2 = "LXX";
+                    break;
+                case 8:
+                    digit2 = "LXXX";
+                    break;
+                case 9:
+                    digit2 = "XC";
+                    break;
+                default:
+                    digit2 = "ERROR";
+            }
+        }
+        return digit2 + digit1;
+    }
+}
+enum Options
+{
+    Arabic,
+    Roman
+}
+enum Operations
+{
+    PLUS,
+    MINUS,
+    DIVIDE,
+    MULTIPLY
+}
